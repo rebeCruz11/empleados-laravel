@@ -27,13 +27,17 @@
 <div class="card mb-4">
     <div class="card-body">
         <form method="GET" action="{{ route('empleados.index') }}" class="row g-3">
-            <div class="col-md-4">
-                <label for="buscar" class="form-label">Buscar por nombre</label>
+            <div class="col-md-3">
+                <label for="buscar" class="form-label">
+                    <i class="bi bi-search"></i> Buscar por nombre
+                </label>
                 <input type="text" class="form-control" id="buscar" name="buscar" 
                        value="{{ request('buscar') }}" placeholder="Nombre del empleado">
             </div>
-            <div class="col-md-3">
-                <label for="departamento" class="form-label">Departamento</label>
+            <div class="col-md-2">
+                <label for="departamento" class="form-label">
+                    <i class="bi bi-building"></i> Departamento
+                </label>
                 <select class="form-select" id="departamento" name="departamento">
                     <option value="">Todos</option>
                     @foreach($departamentos as $dept)
@@ -43,20 +47,56 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="estado" class="form-label">Estado</label>
+            <div class="col-md-2">
+                <label for="estado" class="form-label">
+                    <i class="bi bi-toggle-on"></i> Estado
+                </label>
                 <select class="form-select" id="estado" name="estado">
                     <option value="">Solo Activos</option>
                     <option value="1" {{ request('estado') == '1' ? 'selected' : '' }}>Activos</option>
                     <option value="0" {{ request('estado') == '0' ? 'selected' : '' }}>Inactivos</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search"></i> Filtrar
+            <div class="col-md-2">
+                <label for="salario_min" class="form-label">
+                    <i class="bi bi-currency-dollar"></i> Salario Mínimo
+                </label>
+                <input type="number" class="form-control @error('salario_min') is-invalid @enderror" 
+                       id="salario_min" name="salario_min" 
+                       value="{{ request('salario_min') }}" 
+                       placeholder="Ej: 30000" 
+                       step="0.01" min="0" max="99999999.99">
+                @error('salario_min')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-md-2">
+                <label for="salario_max" class="form-label">
+                    <i class="bi bi-currency-dollar"></i> Salario Máximo
+                </label>
+                <input type="number" class="form-control @error('salario_max') is-invalid @enderror" 
+                       id="salario_max" name="salario_max" 
+                       value="{{ request('salario_max') }}" 
+                       placeholder="Ej: 80000" 
+                       step="0.01" min="0" max="99999999.99">
+                @error('salario_max')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100" title="Aplicar filtros">
+                    <i class="bi bi-funnel"></i>
                 </button>
             </div>
         </form>
+        
+        @if(request()->hasAny(['buscar', 'departamento', 'estado', 'salario_min', 'salario_max']))
+            <div class="mt-3">
+                <a href="{{ route('empleados.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar filtros
+                </a>
+            </div>
+        @endif
     </div>
 </div>
 

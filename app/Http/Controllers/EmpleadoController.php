@@ -23,6 +23,19 @@ class EmpleadoController extends Controller
      */
     public function index(Request $request)
     {
+        // Validar los filtros de salario
+        $request->validate([
+            'salario_min' => 'nullable|numeric|min:0|max:99999999.99',
+            'salario_max' => 'nullable|numeric|min:0|max:99999999.99',
+        ], [
+            'salario_min.numeric' => 'El salario mínimo debe ser un número válido',
+            'salario_min.min' => 'El salario mínimo no puede ser negativo',
+            'salario_min.max' => 'El salario mínimo no puede exceder 99,999,999.99',
+            'salario_max.numeric' => 'El salario máximo debe ser un número válido',
+            'salario_max.min' => 'El salario máximo no puede ser negativo',
+            'salario_max.max' => 'El salario máximo no puede exceder 99,999,999.99',
+        ]);
+
         $query = Empleado::query();
 
         // Filtros
@@ -36,6 +49,25 @@ class EmpleadoController extends Controller
 
         if ($request->filled('buscar')) {
             $query->where('nombre', 'like', '%' . $request->buscar . '%');
+        }
+
+        // Filtro por salario mínimo
+        if ($request->filled('salario_min')) {
+            $query->where('salario_base', '>=', $request->salario_min);
+        }
+
+        // Filtro por salario máximo
+        if ($request->filled('salario_max')) {
+            $query->where('salario_base', '<=', $request->salario_max);
+        }
+
+        // Validación adicional: salario_min no puede ser mayor que salario_max
+        if ($request->filled('salario_min') && $request->filled('salario_max')) {
+            if ($request->salario_min > $request->salario_max) {
+                return back()->withErrors([
+                    'salario_min' => 'El salario mínimo no puede ser mayor que el salario máximo'
+                ])->withInput();
+            }
         }
 
         // Por defecto mostrar solo activos, a menos que se especifique
