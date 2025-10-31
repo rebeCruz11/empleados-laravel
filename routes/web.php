@@ -15,3 +15,7 @@ Route::get('/reporte', [EmpleadoController::class, 'reporte'])->name('empleados.
 
 // Rutas del recurso Empleados
 Route::resource('empleados', EmpleadoController::class);
+
+Route::get('/empleados/{id}/pdf', [EmpleadoController::class, 'generarPdf'])
+    ->name('empleados.pdf');
+

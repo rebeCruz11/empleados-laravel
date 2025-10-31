@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empleado;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\EstadisticasEmpleadosService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -254,5 +255,40 @@ class EmpleadoController extends Controller
             ->get();
         
         return view('empleados.reporte', compact('estadisticas', 'empleados'));
+    }
+
+    public function generarPdf($id)
+    {
+        $empleado = Empleado::findOrFail($id);
+
+        // Generar URL de gráfica con QuickChart
+        $chartData = [
+            "type" => "bar",
+            "data" => [
+                "labels" => ["Evaluación", "Antigüedad", "Edad"],
+                "datasets" => [[
+                    "label" => "Indicadores",
+                    "data" => [
+                        $empleado->evaluacion_desempeno,
+                        $empleado->antiguedad,
+                        $empleado->edad
+                    ],
+                    "backgroundColor" => ["#0d6efd","#198754","#ffc107"]
+                ]]
+            ],
+            "options" => [
+                "plugins" => ["legend" => ["display" => false]],
+                "scales" => ["y" => ["beginAtZero" => true]]
+            ]
+        ];
+
+        // Obtener la imagen en base64
+        $chartUrl = 'https://quickchart.io/chart?c=' . urlencode(json_encode($chartData));
+        $chart = base64_encode(file_get_contents($chartUrl));
+
+        $pdf = Pdf::loadView('empleados.empleado_detalle_pdf', compact('empleado', 'chart'))
+            ->setPaper('A4', 'portrait');
+
+        return $pdf->stream("Empleado_{$empleado->nombre}.pdf");
     }
 }

@@ -14,6 +14,9 @@
         <a href="{{ route('empleados.edit', $empleado->id_empleado) }}" class="btn btn-warning">
             <i class="bi bi-pencil"></i> Editar
         </a>
+        <a href="{{ route('empleados.pdf', $empleado->id_empleado) }}" class="btn btn-danger" target="_blank">
+            <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
+        </a>
         <a href="{{ route('empleados.index') }}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver
         </a>
